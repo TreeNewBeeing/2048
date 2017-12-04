@@ -1,0 +1,445 @@
+PRINT "WELCOME TO HAPPY 2048"
+PRINT "READY TO PLAY? <Press any key to continue> "
+DO until Key Input
+SOUND 1000, 0.5
+PAUSE 1
+Loop
+GET KEY Dummy
+
+SET COLOR "RED"
+PRINT
+PRINT "SOME TUTORIALS FOR BETTER GAME PLAY<Press any key to continue>: "
+GET KEY Dummy
+
+
+PRINT 
+SET COLOR "BLUE"
+
+FOR I = 1 to 4
+	
+	READ Direct$
+	READ Key$
+
+	DO
+
+		PRINT "In order to move ";Direct$;", you need to enter ";Key$;". Try it NOW: " 
+		INPUT PROMPT "...(Enter the key here)... ": w$
+
+	LOOP UNTIL UCase$(w$) = Key$
+
+	PRINT
+
+NEXT I
+
+
+DATA TOP,W, BOTTOM, S, LEFT, A, RIGHT, D 
+
+PRINT "AND alse q for Quit and r for restart"
+PRINT
+
+INPUT PROMPT "Are you ready to start the game? ": reply$
+
+PRINT
+
+SELECT CASE reply$
+  	
+	Case "Yes", "YES", "yes","Y","y"
+        	
+	    Print "Great! Let's get started!"
+  	
+	Case else
+        	
+	    Print "Your refusal has been declined. Please ENJOY THE GAME."
+
+END SELECT
+
+
+LET New = 1
+
+
+DO
+	PRINT
+	PRINT "NEW GAME LOADING .";
+	PAUSE 1.0
+	PRINT ".";
+	PAUSE 1.0
+	PRINT "."
+
+	PRINT 
+	DIM Array(1 to 4, 1 to 4)
+
+	FOR I = 1 to 4
+		FOR J = 1 to 4
+			LET Array(I,J) = 0
+		NEXT J
+	NEXT I
+
+	LET Lose = 1
+	LET Reenter = 0
+	LET Now = 1
+
+	DO 
+
+		DIM Array2(1 to 4, 1 to 4)
+
+		IF Reenter = 0 THEN
+
+			CALL Random(Array)
+			
+			SET COLOR "RED"
+			CALL Draw(Array)
+			SET COLOR "BLUE"
+	
+			FOR I = 1 to 4
+				FOR J = 1 to 4
+					LET Array2(I,J) = Array(I,J)
+				NEXT J
+			NEXT I	
+
+		END IF
+		
+		CALL CheckLose(Array,Lose)
+		IF Lose = 1 THEN 
+
+			LET Now = 0
+			PRINT "Sorry! Your journey on the board is ended"
+		
+		ELSE
+
+		LET Reenter = 0
+		INPUT PROMPT "Please enter your MOVE: ": key$
+
+		SELECT CASE UCase$(key$)
+
+		CASE "W"
+
+			CALL MoveTop(Array)
+
+		CASE "D"
+
+			CALL MoveRight(Array)
+
+		CASE "S"
+
+			CALL MoveBot(Array)
+	
+		CASE "A"
+
+			CALL MoveLeft(Array)
+
+		CASE "Q"
+		
+			LET New = 0
+
+			LET Now = 0
+	
+		CASE "R"
+	
+			LET Now = 0
+
+		CASE ELSE
+
+			LET Reenter = 1
+			PRINT "!!Please ENTER another key!!"
+
+		END SELECT
+
+		CALL CheckLose(Array,Lose)
+
+		
+		
+			LET CanMove = 0
+			IF Reenter <> 1 THEN
+				FOR I = 1 to 4
+					FOR J = 1 to 4
+						IF Array2(I,J) <> Array(I,J) THEN LET CanMove = 1
+					NEXT J
+				NEXT I
+				
+				IF CanMove = 0 THEN
+					PRINT 
+					PRINT "Oops, Cannot move in this direction. "
+					LET Reenter = 1
+				END IF
+			END IF
+		END IF 
+	
+
+	LOOP WHILE Now = 1
+
+	IF Lose = 1 THEN
+
+		PRINT 
+		INPUT PROMPT "Do you wanna restart the game<press q to quit or any other key to restart? ": key$
+		IF key$ = "q" THEN
+
+			LET New = 0
+	
+		ELSE 
+
+			LET New = 1
+	
+		END IF	
+
+	END IF
+
+LOOP WHILE New = 1
+
+
+END
+
+
+SUB Move(Array())
+
+
+	FOR I = 1 to 4
+
+		IF Array(I) = 0 THEN
+
+			LET Num = 0
+
+			FOR Index = I to 4
+
+				IF Array(Index) <> 0 THEN
+
+					LET Num = Array(Index)
+
+					LET Array(Index) = 0
+
+					EXIT FOR
+
+				END IF
+
+			NEXT Index
+
+			IF Num <> 0 THEN
+
+				LET Array(I) = Num
+
+			ELSE 
+
+				EXIT FOR
+
+			END IF 
+		END IF
+
+	NEXT I	
+
+	FOR I = 1 to 3
+
+		IF Array(I) = Array(I+1) THEN
+
+			LET Array(I) = Array(I) * 2
+
+			LET Array(I+1) = 0
+
+		END IF
+
+	NEXT I
+
+	FOR I = 1 to 4
+
+		IF Array(I) = 0 THEN
+
+			LET Num = 0
+
+			FOR Index = I to 4
+
+				IF Array(Index) <> 0 THEN
+
+					LET Num = Array(Index)
+
+					LET Array(Index) = 0
+
+					EXIT FOR
+
+				END IF
+
+			NEXT Index
+
+			IF Num <> 0 THEN
+
+				LET Array(I) = Num
+
+			ELSE 
+
+				EXIT FOR
+
+			END IF 
+		END IF
+
+	NEXT I				
+
+END SUB
+
+
+
+SUB TurnLeft(Array(,))
+
+	DIM Array2(1 to 4, 1 to 4)
+
+	FOR I = 1 to 4
+
+		FOR J = 1 to 4
+
+			LET Array2(I,J) = Array(J,5-I)
+		
+		NEXT J
+	NEXT I
+
+	FOR I = 1 to 4
+
+		FOR J = 1 to 4
+
+			LET Array(I,J) = Array2(I,J)
+		
+		NEXT J
+	NEXT I
+
+END SUB
+
+SUB TurnRight(Array(,))
+
+	DIM Array2(1 to 4, 1 to 4)
+
+	FOR I = 1 to 4
+
+		FOR J = 1 to 4
+
+			LET Array2(I,J) = Array(5-J,I)
+		
+		NEXT J
+	NEXT I
+
+	FOR I = 1 to 4
+
+		FOR J = 1 to 4
+
+			LET Array(I,J) = Array2(I,J)
+		
+		NEXT J
+	NEXT I
+
+END SUB	
+
+SUB TurnHorizontal(Array(,))
+
+	FOR I = 1 to 4
+
+		FOR J = 1 to 2
+
+			LET Temp = Array(I,J)
+			
+			LET Array(I,J) = Array(I,5-J)
+
+			LET Array(I,5-J) = Temp
+		
+		NEXT J
+	NEXT I
+
+END SUB
+
+SUB MoveLeft(Array(,))
+
+	FOR I = 1 to 4
+		
+		DIM Array2(4)
+		
+		FOR J = 1 to 4		
+
+			LET Array2(J) = Array(I,J)
+
+		NEXT J
+
+		CALL Move(Array2)
+
+		FOR J = 1 to 4		
+
+			LET Array(I,J) = Array2(J)
+
+		NEXT J
+
+	NEXT I
+
+END SUB
+
+SUB MoveTop(Array(,))
+
+	CALL TurnLeft(Array)
+	CALL MoveLeft(Array)
+	CALL TurnRight(Array)
+
+END SUB
+
+SUB MoveBot(Array(,))
+
+	CALL TurnRight(Array)
+	CALL MoveLeft(Array)
+	CALL TurnLeft(Array)
+
+END SUB
+
+SUB MoveRight(Array(,))
+
+	CALL TurnHorizontal(Array)
+	CALL MoveLeft(Array)
+	CALL TurnHorizontal(Array)
+
+END SUB
+
+SUB Draw(Array(,))
+
+	PRINT
+	FOR I = 1 to 4
+
+		FOR J = 1 to 4
+
+			PRINT Array(I,J),"";
+		
+		NEXT J
+
+		PRINT
+		PRINT
+		PRINT
+
+	NEXT I
+	PRINT
+
+END SUB
+
+SUB Random(Array(,))
+
+	LET I = int(RND * 4 + 1)
+	LET J = int(RND * 4 + 1)
+	
+	DO WHILE Array(I,J) <> 0
+
+		LET I = int(RND * 4 + 1)
+		LET J = int(RND * 4 + 1)
+
+	LOOP 
+
+	LET Array(I,J) = 2	
+		
+END SUB
+
+SUB CheckLose(Array(,),Lose)
+
+	LET Lose = 1
+
+	FOR I = 1 to 4
+
+		FOR J = 1 to 4
+
+			IF I <> 4 AND Array(I,J) = Array(I+1,J) THEN LET Lose = 0
+					
+			IF J <> 4 AND Array(I,J) = Array(I,J+1) THEN LET Lose = 0
+
+			IF Array(I,J) = 0 THEN LET Lose = 0
+		
+		NEXT J
+
+	NEXT I
+
+
+END SUB
